@@ -13,7 +13,7 @@
 
 #ifndef HJ_H
 #define HJ_H
-#include "firstphase.h"
+#include "firstphase.hpp"
 #include <common/locsearch.hpp>
 #include <sstream>
 #include <functional>
@@ -25,7 +25,9 @@
 #include <common/sgerrcheck.hpp>
 #include <mpproblem.hpp>
 #include <mputils.hpp>
-
+// basic file operations
+#include <iostream>
+#include <fstream>
 
 
 
@@ -83,10 +85,29 @@ namespace LOCSEARCH {
             firstPhase = new HookeJeevesFirstPhase<FT>(); 
             
         }
-
-
+        std::ofstream myfile;
+        void openFile(char* filename)
+        {
+            
+            
+            myfile.open (filename);
+            
+        }
+        
+        void closeFile()
+        {     
+            myfile.close();
+        }
+        
+        void appendToFile(const char* message)
+        {
+            myfile<<message<<"\n";
+        }
+        
+        
          
         bool search(FT* x, FT& v){
+            openFile("optimisation_process.tx");
             bool rv = false;
             
             COMPI::Functor<FT>* obj = mProblem.mObjectives.at(0);
@@ -121,6 +142,7 @@ namespace LOCSEARCH {
                     fcur = fnew;
                     snowgoose::VecUtils::vecCopy(n, x, xold);
                     snowgoose::VecUtils::vecCopy(n, y, x);
+                    appendToFile(snowgoose::VecUtils::vecPrint(n, x).c_str());
                     FT xdiff = snowgoose::VecUtils::vecDist(n, xold, x);
                     step(xold, x, y);
                     lam *= mOptions.mInc;
@@ -136,6 +158,7 @@ namespace LOCSEARCH {
                 }
             }
             v = fcur;
+            closeFile();
             return rv;
             
         }

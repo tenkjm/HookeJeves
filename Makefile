@@ -1,5 +1,5 @@
 ROOT=./
-BINS = hjser.exe
+BINS = hjsearchtest.exe
 TESTS = 
 
 
