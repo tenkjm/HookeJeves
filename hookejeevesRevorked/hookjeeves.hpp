@@ -136,8 +136,7 @@ namespace LOCSEARCH {
                                               
                         }
                         snowgoose::VecUtils::vecCopy(n, x, y); 
-                        if (mStopper.stopnow(1.0f, 1.0f, fcur, sn))
-                        break;
+                        
 		    }
 		    else
 			{				

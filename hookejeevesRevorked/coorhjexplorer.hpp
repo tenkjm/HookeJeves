@@ -72,8 +72,8 @@ namespace LOCSEARCH {
         FT* mincoordinate = new FT[n];
         FT maxcoordinate[n];
           
-       // if (mOptions.mResetEveryTime)
-       //         reset();
+        if (mOptions.mResetEveryTime)
+                reset();
         for (;;) {                       
                 for (int i = 0; i < n; i++) {                    
                     snowgoose::VecUtils::vecCopy(n, x, mincoordinate);

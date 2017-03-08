@@ -49,7 +49,7 @@ public:
         mCnt++;
        // std::cout<<n<<endl;
         
-        if(fdiff<0.0000001f){
+        if(xdiff<0.0000001f){
             
             return true;
         
@@ -290,11 +290,11 @@ int main(int argc, char** argv) {
     
     
     HJTester hjtester;
-    
+    std::cout<<"================================================================================HJ std"<<endl;
     hjtester.TestHJ(argv);
-    
+    std::cout<<"===============================================================HJ rnd"<<endl;
     hjtester.TestRnd(argv);
-    
+    std::cout<<"===============================================================HJ linear"<<endl;
     hjtester.TestLS(argv);
     return 0;
 }
