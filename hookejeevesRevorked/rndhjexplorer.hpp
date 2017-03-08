@@ -176,6 +176,15 @@ namespace LOCSEARCH {
         void reset() {
             mH = mOptions.mHInit;
         }
+         void decMH()
+     {
+         
+         
+         mH *= mOptions.mDec;
+         
+         
+         
+     }
 
     private:
 

@@ -70,7 +70,7 @@ namespace LOCSEARCH {
          * @param explorer - reference to the explorer
          * @param ls - pointer to the line search
          */
-        MHookeJeevesAnton(const COMPI::MPProblem<FT>& prob, Stopper& stopper, HJExplorer<FT>& explorer, LineSearch<FT>* ls = nullptr) :
+        MHookeJeeves(const COMPI::MPProblem<FT>& prob, Stopper& stopper, HJExplorer<FT>& explorer, LineSearch<FT>* ls = nullptr) :
         mProblem(prob),
         mStopper(stopper),
         mExplorer(explorer),
@@ -119,7 +119,7 @@ namespace LOCSEARCH {
             for (;;) {
                 sn++;
                 FT fnew = mExplorer.explore(y);
-                if (fnew < fcur) {
+                if ( fnew < fcur ) {
                     rv = true;
 
                     FT fdiff = fcur - fnew;
@@ -128,18 +128,39 @@ namespace LOCSEARCH {
                     snowgoose::VecUtils::vecCopy(n, y, x);
                     FT xdiff = snowgoose::VecUtils::vecDist(n, xold, x);
                     step(xold, x, y);
-                    lam *= mOptions.mInc;
-                    if (mStopper.stopnow(xdiff, fdiff, fcur, sn))
-                        break;
-
-                } else {
-                    if (lam > mOptions.mLambdaLB) {
+                    FT fstep = obj->func(y);
+		    if(fstep > fcur){
+                             //std::cout<<"1";
+			if (lam > mOptions.mLambdaLB) {
                         lam *= mOptions.mDec;
-                        snowgoose::VecUtils::vecCopy(n, x, y);
-                    } else
+                                              
+                        }
+                        snowgoose::VecUtils::vecCopy(n, x, y); 
+                        if (mStopper.stopnow(1.0f, 1.0f, fcur, sn))
+                        break;
+		    }
+		    else
+			{				
+				lam *= mOptions.mInc;  
+                                //std::cout<<"2";
+			}  
+                    if (mStopper.stopnow(xdiff, fdiff, fcur, sn))
+                    {
+                        
+                        break;
+                    }
+                    }
+                else
+                {                   
+                    mExplorer.decMH();
+                    std::cout<<"dec";
+                    if (mStopper.stopnow(1.0f, 1.0f, fcur, sn))
                         break;
                 }
-            }
+                    
+                } 
+                
+                    
             v = fcur;
             return rv;
         }

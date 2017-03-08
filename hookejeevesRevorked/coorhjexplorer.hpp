@@ -72,8 +72,8 @@ namespace LOCSEARCH {
         FT* mincoordinate = new FT[n];
         FT maxcoordinate[n];
           
-        if (mOptions.mResetEveryTime)
-                reset();
+       // if (mOptions.mResetEveryTime)
+       //         reset();
         for (;;) {                       
                 for (int i = 0; i < n; i++) {                    
                     snowgoose::VecUtils::vecCopy(n, x, mincoordinate);
@@ -89,7 +89,7 @@ namespace LOCSEARCH {
                         maxcoordinate[i] = box.mB[i];
                     }                   
                     FT fnmin;                       
-                    std::thread thr(HookeJeevesFirstPhase<FT>::exploreOneSide, mincoordinate, obj,  std::ref(fnmin));                    
+                    std::thread thr(exploreOneSide, mincoordinate, obj,  std::ref(fnmin));                    
                     FT fnmax = obj->func(maxcoordinate);                      
                     thr.join();
 
@@ -121,7 +121,17 @@ namespace LOCSEARCH {
        
         return fcur;               
     }
-   
+     void decMH()
+     {
+         
+         
+         mH *= mOptions.mDec;
+         
+         
+         
+     }
+     
+     
     static void exploreOneSide( FT* x , COMPI::Functor<FT>* obj, FT& fn)
     {       
         fn = obj->func(x);       

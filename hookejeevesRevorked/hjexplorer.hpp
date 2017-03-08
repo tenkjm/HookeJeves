@@ -24,7 +24,10 @@ namespace LOCSEARCH {
          * @return new obtained value 
          */
         virtual FT explore(FT* x) = 0;
-
+        
+        
+         
+        virtual void decMH() = 0;
         /**
          * The text description of the method
          * @return string description

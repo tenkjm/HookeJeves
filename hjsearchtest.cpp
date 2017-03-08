@@ -11,18 +11,18 @@
  * Created on 30 января 2017 г., 14:49
  */
 
-#include <methods/hookejeeves/coorhjexplorer.hpp>
+//#include <methods/hookejeeves/coorhjexplorer.hpp>
  
-#include <methods/hookejeeves/hookjeeves.hpp>
+//#include <methods/hookejeeves/hookjeeves.hpp>
 #include <common/vec.hpp>
 #include <box/boxutils.hpp>
 #include "crystproblemfact.hpp"
 #include <funccnt.hpp>
 #include <methods/lins/dichotls/dichotls.hpp>
 #include <methods/lins/quadls/quadls.hpp>
-#include <methods/gfsdesc/gfsdesc.hpp>
+//#include <methods/gfsdesc/gfsdesc.hpp>
 #include <methods/coordesc/coordesc.hpp>
-#include <methods/varcoordesc/varcoordesc.hpp>
+//#include <methods/varcoordesc/varcoordesc.hpp>
 
 
 #include <hookejeevesRevorked/coorhjexplorer.hpp>
@@ -30,10 +30,10 @@
 #include <hookejeevesRevorked/hookjeeves.hpp>
 #include <hookejeevesRevorked/hjexplorer.hpp>
 #include <methods/lins/quadls/quadls.hpp>
-#include <methods/hookejeeves/coorhjexplorer.hpp>
+/*#include <methods/hookejeeves/coorhjexplorer.hpp>
 #include <methods/hookejeeves/rndhjexplorer.hpp>
 #include <methods/hookejeeves/hookjeeves.hpp>
-
+*/
 
 
 
@@ -47,6 +47,19 @@ public:
     bool stopnow(double xdiff, double fdiff, double fval, int n) {
         //        std::cout << "n = " << n << "fdiff = " << fdiff << "\n";
         mCnt++;
+       // std::cout<<n<<endl;
+        
+        if(fdiff<0.0000001f){
+            
+            return true;
+        
+        }
+        if(n>7000)
+        {
+            
+            return true;
+        }
+        
         return false;
     }
 
@@ -94,6 +107,7 @@ public:
 
     int mCnt = 0;
 };
+
         
 
 	void TestHJ(char** argv)
@@ -101,23 +115,16 @@ public:
 		CrystallProblemFactory cpf(argv[1]);
 		    COMPI::MPProblem<double>& mpp = *cpf.get();
 		    int cnt = 0;
-		    auto stopper = [&](double xdiff, double fdiff, double gran, double fval, int n) {
-			cnt++;
-			//std::cout << "cnt = " << cnt << ", fval =" << fval << "\n";
-			if (cnt > 7000)
-			    return true;
-			else
-			    return false;
-		    };
+		  
                         HJStopper hjstp;
-                        int n = 12;
+                        int n = 9;
                         double *x = new double[n];
                         snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
                         double v;
 			LOCSEARCH::CoorHJExplorer<double> explr(mpp);
                         explr.getOptions().mHInit = 0.01;
                         explr.getOptions().mHLB = 1e-6;
-                        explr.getOptions().mResetEveryTime = true;
+                        explr.getOptions().mResetEveryTime = false;
 
                         snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
 
@@ -130,7 +137,7 @@ public:
                         hjdesc.search(x, v);
 
                         std::cout << hjdesc.about() << "\n";
-                        std::cout << "In " << cnt << " iterations found v = " << v << "\n";
+                        std::cout << "In " << hjstp.mCnt << " iterations found v = " << v << "\n";
                         std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x) << "\n";
                         //std::cout << "Number of objective calls is " << mpp.mObjectives[0]->mCounters.mFuncCalls << "\n";
                         SG_ASSERT(v <= 0.01);
@@ -144,23 +151,16 @@ public:
                     CrystallProblemFactory cpf(argv[1]);
 		    const COMPI::MPProblem<double>& mpp = *cpf.get();
 		    int cnt = 0;
-		    auto stopper = [&](double xdiff, double fdiff, double gran, double fval, int n) {
-			cnt++;
-			//std::cout << "cnt = " << cnt << ", fval =" << fval << "\n";
-			if (cnt > 7000)
-			    return true;
-			else
-			    return false;
-		    };
+		     
                         HJStopper hjstp;
-                        int n = 12;
+                        int n = 9;
                         double *x = new double[n];
                         snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
                         double v;
 			LOCSEARCH::CoorHJExplorer<double> explr(mpp);
                         explr.getOptions().mHInit = 0.01;
                         explr.getOptions().mHLB = 1e-6;
-                        explr.getOptions().mResetEveryTime = true;
+                        explr.getOptions().mResetEveryTime = false;
 
                         snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
 
@@ -176,7 +176,7 @@ public:
                         hjdesc.search(x, v);
 
                         std::cout << hjdesc.about() << "\n";
-                        std::cout << "In " << cnt << " iterations found v = " << v << "\n";
+                        std::cout << "In " << hjstp.mCnt << " iterations found v = " << v << "\n";
                         std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x) << "\n";
                         //std::cout << "Number of objective calls is " << mpp.mObjectives[0]->mCounters.mFuncCalls << "\n";
                         SG_ASSERT(v <= 0.01);
@@ -189,23 +189,16 @@ public:
                 CrystallProblemFactory cpf(argv[1]);
 		    COMPI::MPProblem<double>& mpp = *cpf.get();
 		    int cnt = 0;
-		    auto stopper = [&](double xdiff, double fdiff, double gran, double fval, int n) {
-			cnt++;
-			//std::cout << "cnt = " << cnt << ", fval =" << fval << "\n";
-			if (cnt > 7000)
-			    return true;
-			else
-			    return false;
-		    };
+		     
                         HJStopper hjstp;
-                        int n = 12;
+                        int n = 9;
                         double *x = new double[n];
                         snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
                         double v;
 			LOCSEARCH::RndHJExplorer<double> explr(mpp);
                         explr.getOptions().mHInit = 0.01;
                         explr.getOptions().mHLB = 1e-6;
-                        explr.getOptions().mResetEveryTime = true;
+                        explr.getOptions().mResetEveryTime = false;
 
                         snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
 
@@ -218,7 +211,7 @@ public:
                         hjdesc.search(x, v);
 
                         std::cout << hjdesc.about() << "\n";
-                        std::cout << "In " << cnt << " iterations found v = " << v << "\n";
+                        std::cout << "In " << hjstp.mCnt << " iterations found v = " << v << "\n";
                         std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x) << "\n";
                         //std::cout << "Number of objective calls is " << mpp.mObjectives[0]->mCounters.mFuncCalls << "\n";
                         SG_ASSERT(v <= 0.01);
@@ -264,6 +257,37 @@ COMPI::MPProblem<double>* getRosenbrock() {
  * 
  */
 int main(int argc, char** argv) {
+    
+    
+    CrystallProblemFactory cpf(argv[1]);
+    COMPI::MPProblem<double>& mpp = *cpf.get();
+    int cnt = 0;
+    auto stopper = [&](double xdiff, double fdiff, double gran, double fval, int n) {
+        cnt++;
+        //std::cout << "cnt = " << cnt << ", fval =" << fval << "\n";
+        if (cnt > 7000)
+            return true;
+        else
+            return false;
+    };
+    
+     
+    LOCSEARCH::CoorDesc<double> desc(mpp, stopper);
+    const int n = 12;
+    double *x = new double[n];
+    snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
+    double v;
+    v = mpp.mObjectives[0]->func(x);
+    std::cout << "Initial v = " << v << "\n";
+    std::cout << "Initial x = " << snowgoose::VecUtils::vecPrint(n, x, 10) << "\n";
+    bool rv = desc.search(x, v);
+    std::cout << desc.about() << "\n";
+    std::cout << "In " << cnt << " iterations found v = " << v << "\n";
+    std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x, 10) << "\n";
+
+    
+    
+    
     
     HJTester hjtester;
     
