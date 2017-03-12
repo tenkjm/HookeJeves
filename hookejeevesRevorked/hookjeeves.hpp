@@ -37,7 +37,7 @@ namespace LOCSEARCH {
             /**
              * Increment multiplier
              */
-            FT mInc = 1;
+            FT mInc = 1.2;
             /**
              * Decrement multiplier
              */

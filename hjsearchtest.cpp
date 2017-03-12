@@ -69,7 +69,7 @@ public:
 
  class RosenbrockFunction : public COMPI::Functor <double> {
     public:
-
+        
       
         double func(const double* x) {
             
@@ -91,7 +91,9 @@ public:
 
  class HJTester   {
     public:
-
+       COMPI::MPProblem<double>& mpp;
+       
+      
     class MyStopper : public LOCSEARCH::QuadLS<double>::Stopper {
 public:
 
@@ -108,12 +110,20 @@ public:
     int mCnt = 0;
 };
 
-        
+         HJTester(COMPI::MPProblem<double>& _mpp):mpp(_mpp){
+           
+            
+           
+       }
+
 
 	void TestHJ(char** argv)
 	{
-		CrystallProblemFactory cpf(argv[1]);
-		    COMPI::MPProblem<double>& mpp = *cpf.get();
+           
+                
+            
+		 
+		    
 		    int cnt = 0;
 		  
                         HJStopper hjstp;
@@ -148,8 +158,7 @@ public:
 	void TestLS(char** argv)
 	{
 
-                    CrystallProblemFactory cpf(argv[1]);
-		    const COMPI::MPProblem<double>& mpp = *cpf.get();
+                    
 		    int cnt = 0;
 		     
                         HJStopper hjstp;
@@ -186,8 +195,7 @@ public:
 
 	void TestRnd(char** argv)
 	{
-                CrystallProblemFactory cpf(argv[1]);
-		    COMPI::MPProblem<double>& mpp = *cpf.get();
+                 
 		    int cnt = 0;
 		     
                         HJStopper hjstp;
@@ -219,7 +227,41 @@ public:
 
 
         }
+        void TestCoorDesk()
+        {
+            
+            
+            
+            
+             
+            int cnt = 0;
+            auto stopper = [&](double xdiff, double fdiff, double gran, double fval, int n) {
+                cnt++;
+                //std::cout << "cnt = " << cnt << ", fval =" << fval << "\n";
+                if (cnt > 7000)
+                    return true;
+                else
+                    return false;
+            };
 
+
+            LOCSEARCH::CoorDesc<double> desc(mpp, stopper);
+            const int n = 12;
+            double *x = new double[n];
+            snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
+            double v;
+            v = mpp.mObjectives[0]->func(x);
+            std::cout << "Initial v = " << v << "\n";
+            std::cout << "Initial x = " << snowgoose::VecUtils::vecPrint(n, x, 10) << "\n";
+            bool rv = desc.search(x, v);
+            std::cout << desc.about() << "\n";
+            std::cout << "In " << cnt << " iterations found v = " << v << "\n";
+            std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x, 10) << "\n";
+
+
+            
+            
+        }
 
 
     };
@@ -259,37 +301,19 @@ COMPI::MPProblem<double>* getRosenbrock() {
 int main(int argc, char** argv) {
     
     
-    CrystallProblemFactory cpf(argv[1]);
-    COMPI::MPProblem<double>& mpp = *cpf.get();
-    int cnt = 0;
-    auto stopper = [&](double xdiff, double fdiff, double gran, double fval, int n) {
-        cnt++;
-        //std::cout << "cnt = " << cnt << ", fval =" << fval << "\n";
-        if (cnt > 7000)
-            return true;
-        else
-            return false;
-    };
     
-     
-    LOCSEARCH::CoorDesc<double> desc(mpp, stopper);
-    const int n = 12;
-    double *x = new double[n];
-    snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
-    double v;
-    v = mpp.mObjectives[0]->func(x);
-    std::cout << "Initial v = " << v << "\n";
-    std::cout << "Initial x = " << snowgoose::VecUtils::vecPrint(n, x, 10) << "\n";
-    bool rv = desc.search(x, v);
-    std::cout << desc.about() << "\n";
-    std::cout << "In " << cnt << " iterations found v = " << v << "\n";
-    std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x, 10) << "\n";
 
     
     
+    CrystallProblemFactory cpf12(argv[1]);
+    COMPI::MPProblem<double>& mpp1 = *cpf12.get();
     
+    //HJTester hjtester(mpp1);
+    HJTester hjtester(*getRosenbrock());
     
-    HJTester hjtester;
+    std::cout<<"================================================================================CoorDesk Test"<<endl;
+    hjtester.TestCoorDesk();
+    
     std::cout<<"================================================================================HJ std"<<endl;
     hjtester.TestHJ(argv);
     std::cout<<"===============================================================HJ rnd"<<endl;
