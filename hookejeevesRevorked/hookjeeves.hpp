@@ -128,6 +128,19 @@ namespace LOCSEARCH {
                     snowgoose::VecUtils::vecCopy(n, y, x);
                     FT xdiff = snowgoose::VecUtils::vecDist(n, xold, x);
                     step(xold, x, y);
+                    
+                    
+                    for(int dimentionAxis = 0;dimentionAxis<n; dimentionAxis++)
+                    {
+                         if (y[dimentionAxis] < box.mA[dimentionAxis]) {
+                                 y[dimentionAxis] = box.mA[dimentionAxis];
+                            } else 
+                         if(y[dimentionAxis]>box.mB[dimentionAxis])
+                         {
+                             y[dimentionAxis] = box.mB[dimentionAxis];
+                         }
+                    }
+                    
                     FT fstep = obj->func(y);
 		    if(fstep > fcur){
                              //std::cout<<"1";

@@ -92,7 +92,7 @@ public:
  class HJTester   {
     public:
        COMPI::MPProblem<double>& mpp;
-       
+       int n=0;
       
     class MyStopper : public LOCSEARCH::QuadLS<double>::Stopper {
 public:
@@ -112,7 +112,7 @@ public:
 
          HJTester(COMPI::MPProblem<double>& _mpp):mpp(_mpp){
            
-            
+             n=mpp.mBox->mDim;
            
        }
 
@@ -127,7 +127,7 @@ public:
 		    int cnt = 0;
 		  
                         HJStopper hjstp;
-                        int n = 9;
+                        
                         double *x = new double[n];
                         snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
                         double v;
@@ -162,7 +162,7 @@ public:
 		    int cnt = 0;
 		     
                         HJStopper hjstp;
-                        int n = 9;
+                        
                         double *x = new double[n];
                         snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
                         double v;
@@ -199,7 +199,7 @@ public:
 		    int cnt = 0;
 		     
                         HJStopper hjstp;
-                        int n = 9;
+                        
                         double *x = new double[n];
                         snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
                         double v;
@@ -246,7 +246,7 @@ public:
 
 
             LOCSEARCH::CoorDesc<double> desc(mpp, stopper);
-            const int n = 12;
+          
             double *x = new double[n];
             snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
             double v;
