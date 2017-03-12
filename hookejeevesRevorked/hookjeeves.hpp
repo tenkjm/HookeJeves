@@ -130,7 +130,7 @@ namespace LOCSEARCH {
                     step(xold, x, y);
                     
                     
-                    for(int dimentionAxis = 0;dimentionAxis<n; dimentionAxis++)
+                    for(int dimentionAxis = 0; dimentionAxis<n; dimentionAxis++)
                     {
                          if (y[dimentionAxis] < box.mA[dimentionAxis]) {
                                  y[dimentionAxis] = box.mA[dimentionAxis];

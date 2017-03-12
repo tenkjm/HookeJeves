@@ -49,7 +49,12 @@ public:
         mCnt++;
        // std::cout<<n<<endl;
         
-        if(xdiff<0.0000001f){
+        if(xdiff<0.0001f){
+            
+            return true;
+        
+        }
+        if(fdiff<0.0001f){
             
             return true;
         
@@ -308,8 +313,8 @@ int main(int argc, char** argv) {
     CrystallProblemFactory cpf12(argv[1]);
     COMPI::MPProblem<double>& mpp1 = *cpf12.get();
     
-    //HJTester hjtester(mpp1);
-    HJTester hjtester(*getRosenbrock());
+    HJTester hjtester(mpp1);
+   // HJTester hjtester(*getRosenbrock());
     
     std::cout<<"================================================================================CoorDesk Test"<<endl;
     hjtester.TestCoorDesk();
