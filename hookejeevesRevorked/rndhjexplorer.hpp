@@ -37,12 +37,12 @@ namespace LOCSEARCH {
             /**
              * Initial value of granularity
              */
-            FT mHInit = 1;
+            FT mHInit = 0.01;
 
             /**
              * Increase in the case of success
              */
-            FT mInc = 1;
+            FT mInc = 1.75;
             /**
              * Decrease in the case of failure
              */
@@ -67,7 +67,7 @@ namespace LOCSEARCH {
         };
 
         RndHJExplorer(const COMPI::MPProblem<FT>& prob) : mProb(prob) {
-            mH = mOptions.mHInit;
+            this->mH = mOptions.mHInit;
         }
 
 
@@ -82,68 +82,122 @@ namespace LOCSEARCH {
          * @return new obtained value 
          */
 
-	 FT explore(FT* x)
-    {
-        COMPI::Functor<FT>* obj = mProb.mObjectives.at(0);
-        int n = mProb.mVarTypes.size();
-        const snowgoose::Box<double>& box = *(mProb.mBox);
-        FT fcur = obj->func(x);
-        FT fold = fcur;       
-        FT* mincoordinate = new FT[n];
-        FT maxcoordinate[n];
-          
-        if (mOptions.mResetEveryTime)
-                reset();
-        for (;;) {                       
-                for (int i = 0; i < n; i++) {   
-		FT r = 0.5 - (FT) rand() / (FT) RAND_MAX;                 
-                    snowgoose::VecUtils::vecCopy(n, x, mincoordinate);
-                    snowgoose::VecUtils::vecCopy(n, x, maxcoordinate);  
-                 
-                    mincoordinate[i] = mincoordinate[i] - mH*r;
-                    maxcoordinate[i] = maxcoordinate[i] + mH*r;
-                                        
-                    if (mincoordinate[i] < box.mA[i]) {
-                        mincoordinate[i] = box.mA[i];
-                    }                   
-                    if (maxcoordinate[i] > box.mB[i]) {
-                        maxcoordinate[i] = box.mB[i];
-                    }                   
-                    FT fnmin;                       
-                    std::thread thr(exploreOneSide, mincoordinate, obj,  std::ref(fnmin));                    
-                    FT fnmax = obj->func(maxcoordinate);                      
-                    thr.join();
+//	 FT explore(FT* x)
+//    {
+//        COMPI::Functor<FT>* obj = mProb.mObjectives.at(0);
+//        int n = mProb.mVarTypes.size();
+//        const snowgoose::Box<double>& box = *(mProb.mBox);
+//        FT fcur = obj->func(x);
+//        FT fold = fcur;       
+//        FT* mincoordinate = new FT[n];
+//        FT maxcoordinate[n];
+//          
+//        if (mOptions.mResetEveryTime)
+//                reset();
+//        for (;;) {                       
+//                for (int i = 0; i < n; i++) {   
+//		FT r = 0.5 - (FT) rand() / (FT) RAND_MAX;                 
+//                    snowgoose::VecUtils::vecCopy(n, x, mincoordinate);
+//                    snowgoose::VecUtils::vecCopy(n, x, maxcoordinate);  
+//                 
+//                    mincoordinate[i] = mincoordinate[i] - this->mH*r;
+//                    maxcoordinate[i] = maxcoordinate[i] + this->mH*r;
+//                                        
+//                    if (mincoordinate[i] < box.mA[i]) {
+//                        mincoordinate[i] = box.mA[i];
+//                    }                   
+//                    if (maxcoordinate[i] > box.mB[i]) {
+//                        maxcoordinate[i] = box.mB[i];
+//                    }                   
+//                    FT fnmin;                       
+//                    std::thread thr(exploreOneSide, mincoordinate, obj,  std::ref(fnmin));                    
+//                    FT fnmax = obj->func(maxcoordinate);                      
+//                    thr.join();
+//
+//                    if(fnmin<fnmax){
+//                        if (fnmin <= fcur) {
+//                            x[i] = mincoordinate[i];
+//                            fcur = fnmin;
+//                            continue;
+//                        }                  
+//                    }else{
+//                         if (fnmax <= fcur) {
+//                            x[i] = maxcoordinate[i]; 
+//                            fcur = fnmax;
+//                            continue;
+//                        }                           
+//                    }                                                          
+//                }
+//                
+//                if (fcur < fold) {
+//                    this->mH *= mOptions.mInc;
+//                    this->mH = SGMIN(mOptions.mHUB, this->mH);
+//                    break;
+//                } else {
+//                    this->mH *= mOptions.mDec;
+//                    if (this->mH <= mOptions.mHLB)
+//                        break;
+//                }
+//            }  
+//       
+//        return fcur;               
+//    }
 
-                    if(fnmin<fnmax){
-                        if (fnmin <= fcur) {
-                            x[i] = mincoordinate[i];
-                            fcur = fnmin;
-                            continue;
-                        }                  
-                    }else{
-                         if (fnmax <= fcur) {
-                            x[i] = maxcoordinate[i]; 
-                            fcur = fnmax;
-                            continue;
-                        }                           
-                    }                                                          
+/**
+         * Explore the vicinity of the 'x' point to find better value
+         * @param x start vector on entry, resulting vector on exit 
+         * @return new obtained value 
+         */
+        FT explore(FT* x) {
+            COMPI::Functor<FT>* obj = mProb.mObjectives.at(0);
+            int n = mProb.mVarTypes.size();
+            const snowgoose::Box<double>& box = *(mProb.mBox);
+            FT fcur = obj->func(x);
+            FT fold = fcur;
+            if (mOptions.mResetEveryTime)
+                reset();
+            for (;;) {
+                for (int i = 0; i < n; i++) {
+                    FT y = x[i] - this->mH;
+                    if (y < box.mA[i]) {
+                        y = box.mA[i];
+                    }
+                    FT tmp = x[i];
+                    x[i] = y;
+                    FT fn = obj->func(x);
+                    if (fn >= fcur) {
+                        x[i] = tmp;
+                    } else {
+                        fcur = fn;
+                        continue;
+                    }
+
+                    y = x[i] + this->mH;
+                    if (y > box.mB[i]) {
+                        y = box.mB[i];
+                    }
+                    tmp = x[i];
+                    x[i] = y;
+                    fn = obj->func(x);
+                    if (fn >= fcur) {
+                        x[i] = tmp;
+                    } else {
+                        fcur = fn;
+                        continue;
+                    }
                 }
-                
                 if (fcur < fold) {
-                    mH *= mOptions.mInc;
-                    mH = SGMIN(mOptions.mHUB, mH);
+                    this->mH *= mOptions.mInc;
+                    this->mH = SGMIN(mOptions.mHUB, this->mH);
                     break;
                 } else {
-                    mH *= mOptions.mDec;
-                    if (mH <= mOptions.mHLB)
+                    this->mH *= mOptions.mDec;
+                    if (this->mH <= mOptions.mHLB)
                         break;
                 }
-            }  
-       
-        return fcur;               
-    }
-
-
+            }
+            return fcur;
+        }
 
 
 
@@ -174,23 +228,23 @@ namespace LOCSEARCH {
          * Reset the current vicinity size
          */
         void reset() {
-            mH = mOptions.mHInit;
+            this->mH = mOptions.mHInit;
         }
          void decMH()
      {
          
          
-         mH *= mOptions.mDec;
+         this->mH *= mOptions.mDec;
          
          
          
      }
-
+    
     private:
 
         const COMPI::MPProblem<FT>& mProb;
         Options mOptions;
-        FT mH;
+        
 
     };
 

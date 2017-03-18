@@ -143,7 +143,7 @@ namespace LOCSEARCH {
                     
                     FT fstep = obj->func(y);
 		    if(fstep > fcur){
-                             //std::cout<<"1";
+                            std::cout<<"1";
 			if (lam > mOptions.mLambdaLB) {
                         lam *= mOptions.mDec;
                                               
@@ -154,7 +154,7 @@ namespace LOCSEARCH {
 		    else
 			{				
 				lam *= mOptions.mInc;  
-                                //std::cout<<"2";
+                                std::cout<<"2";
 			}  
                     if (mStopper.stopnow(xdiff, fdiff, fcur, sn))
                     {
@@ -164,7 +164,7 @@ namespace LOCSEARCH {
                     }
                 else
                 {                   
-                    mExplorer.decMH();
+                    //mExplorer.decMH();
                     std::cout<<"dec";
                     if (mStopper.stopnow(1.0f, 1.0f, fcur, sn))
                         break;
