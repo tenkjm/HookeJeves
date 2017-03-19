@@ -146,7 +146,7 @@ public:
                         v = mpp.mObjectives[0]->func(x);
 
                         LOCSEARCH::MHookeJeeves<double> hjdesc(mpp, hjstp, explr);
-                        hjdesc.getOptions().mLambda = 0.1;
+                        hjdesc.getOptions().mLambda = 0.3;
 
                         hjstp.mCnt = 0;
                         hjdesc.search(x, v);
