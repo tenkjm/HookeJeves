@@ -21,9 +21,10 @@ namespace LOCSEARCH {
         /**
          * Explore the vicinity of the 'x' point to find better value
          * @param x start vector on entry, resulting vector on exit 
+         * @param v value at x
          * @return new obtained value 
          */
-        virtual FT explore(FT* x) = 0;
+        virtual FT explore(FT* x, FT v) = 0;
         
         
          

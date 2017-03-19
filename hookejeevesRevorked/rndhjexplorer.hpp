@@ -148,11 +148,10 @@ namespace LOCSEARCH {
          * @param x start vector on entry, resulting vector on exit 
          * @return new obtained value 
          */
-        FT explore(FT* x) {
+        FT explore(FT* x, FT fcur) {
             COMPI::Functor<FT>* obj = mProb.mObjectives.at(0);
             int n = mProb.mVarTypes.size();
             const snowgoose::Box<double>& box = *(mProb.mBox);
-            FT fcur = obj->func(x);
             FT fold = fcur;
             if (mOptions.mResetEveryTime)
                 reset();

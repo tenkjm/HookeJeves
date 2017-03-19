@@ -6,7 +6,7 @@
  */
 
 #ifndef COORHJEXPLORER_HPP
-#define	COORHJEXPLORER_HPP
+#define COORHJEXPLORER_HPP
 
 #include <sstream>
 #include <stdlib.h>
@@ -62,82 +62,77 @@ namespace LOCSEARCH {
          * @param x start vector on entry, resulting vector on exit 
          * @return new obtained value 
          */
-        
-        
-//         FT explore(FT* x)
-//    {
-//        COMPI::Functor<FT>* obj = mProb.mObjectives.at(0);
-//        int n = mProb.mVarTypes.size();
-//        const snowgoose::Box<double>& box = *(mProb.mBox);
-//        FT fcur = obj->func(x);
-//        FT fold = fcur;       
-//        FT* mincoordinate = new FT[n];
-//        FT maxcoordinate[n];
-//          
-//        if (mOptions.mResetEveryTime)
-//                reset();
-//        for (;;) {                       
-//                for (int i = 0; i < n; i++) {                    
-//                    snowgoose::VecUtils::vecCopy(n, x, mincoordinate);
-//                    snowgoose::VecUtils::vecCopy(n, x, maxcoordinate);  
-//                 
-//                    mincoordinate[i] = mincoordinate[i] - this->mH;
-//                    maxcoordinate[i] = maxcoordinate[i] + this->mH;
-//                                        
-//                    if (mincoordinate[i] < box.mA[i]) {
-//                        mincoordinate[i] = box.mA[i];
-//                    }                   
-//                    if (maxcoordinate[i] > box.mB[i]) {
-//                        maxcoordinate[i] = box.mB[i];
-//                    }                   
-//                    FT fnmin;                       
-//                    std::thread thr(exploreOneSide, mincoordinate, obj,  std::ref(fnmin));                    
-//                    FT fnmax = obj->func(maxcoordinate);                      
-//                    thr.join();
-//
-//                    if(fnmin<fnmax){
-//                        if (fnmin <= fcur) {
-//                            x[i] = mincoordinate[i];
-//                            fcur = fnmin;
-//                            continue;
-//                        }                  
-//                    }else{
-//                         if (fnmax <= fcur) {
-//                            x[i] = maxcoordinate[i]; 
-//                            fcur = fnmax;
-//                            continue;
-//                        }                           
-//                    }                                                          
-//                }
-//                
-//                if (fcur < fold) {
-//                    this->mH *= mOptions.mInc;
-//                    this->mH = SGMIN(mOptions.mHUB, this->mH);
-//                    break;
-//                } else {
-//                    this->mH *= mOptions.mDec;
-//                    if (this->mH <= mOptions.mHLB)
-//                        break;
-//                }
-//            }  
-//       
-//        return fcur;               
-//}
-        
-        
-        
-          FT explore(FT* x)
-    {
-        COMPI::Functor<FT>* obj = mProb.mObjectives.at(0);
+
+
+        //         FT explore(FT* x)
+        //    {
+        //        COMPI::Functor<FT>* obj = mProb.mObjectives.at(0);
+        //        int n = mProb.mVarTypes.size();
+        //        const snowgoose::Box<double>& box = *(mProb.mBox);
+        //        FT fcur = obj->func(x);
+        //        FT fold = fcur;       
+        //        FT* mincoordinate = new FT[n];
+        //        FT maxcoordinate[n];
+        //          
+        //        if (mOptions.mResetEveryTime)
+        //                reset();
+        //        for (;;) {                       
+        //                for (int i = 0; i < n; i++) {                    
+        //                    snowgoose::VecUtils::vecCopy(n, x, mincoordinate);
+        //                    snowgoose::VecUtils::vecCopy(n, x, maxcoordinate);  
+        //                 
+        //                    mincoordinate[i] = mincoordinate[i] - this->mH;
+        //                    maxcoordinate[i] = maxcoordinate[i] + this->mH;
+        //                                        
+        //                    if (mincoordinate[i] < box.mA[i]) {
+        //                        mincoordinate[i] = box.mA[i];
+        //                    }                   
+        //                    if (maxcoordinate[i] > box.mB[i]) {
+        //                        maxcoordinate[i] = box.mB[i];
+        //                    }                   
+        //                    FT fnmin;                       
+        //                    std::thread thr(exploreOneSide, mincoordinate, obj,  std::ref(fnmin));                    
+        //                    FT fnmax = obj->func(maxcoordinate);                      
+        //                    thr.join();
+        //
+        //                    if(fnmin<fnmax){
+        //                        if (fnmin <= fcur) {
+        //                            x[i] = mincoordinate[i];
+        //                            fcur = fnmin;
+        //                            continue;
+        //                        }                  
+        //                    }else{
+        //                         if (fnmax <= fcur) {
+        //                            x[i] = maxcoordinate[i]; 
+        //                            fcur = fnmax;
+        //                            continue;
+        //                        }                           
+        //                    }                                                          
+        //                }
+        //                
+        //                if (fcur < fold) {
+        //                    this->mH *= mOptions.mInc;
+        //                    this->mH = SGMIN(mOptions.mHUB, this->mH);
+        //                    break;
+        //                } else {
+        //                    this->mH *= mOptions.mDec;
+        //                    if (this->mH <= mOptions.mHLB)
+        //                        break;
+        //                }
+        //            }  
+        //       
+        //        return fcur;               
+        //}
+
+        FT explore(FT* x, FT fcur) {
+            COMPI::Functor<FT>* obj = mProb.mObjectives.at(0);
             int n = mProb.mVarTypes.size();
             const snowgoose::Box<double>& box = *(mProb.mBox);
-            FT fcur = obj->func(x);
             FT fold = fcur;
             if (mOptions.mResetEveryTime)
                 reset();
             for (;;) {
                 for (int i = 0; i < n; i++) {
-                    
                     FT y = x[i] - this->mH;
                     if (y < box.mA[i]) {
                         y = box.mA[i];
@@ -151,7 +146,6 @@ namespace LOCSEARCH {
                         fcur = fn;
                         continue;
                     }
-
                     y = x[i] + this->mH;
                     if (y > box.mB[i]) {
                         y = box.mB[i];
@@ -171,28 +165,22 @@ namespace LOCSEARCH {
                     this->mH = SGMIN(mOptions.mHUB, this->mH);
                     break;
                 } else {
-                    this->mH *= mOptions.mDec;
                     if (this->mH <= mOptions.mHLB)
                         break;
+                    this->mH *= mOptions.mDec;
                 }
             }
-            return fcur;              
-    }
-     void decMH()
-     {
-         
-         
-         this->mH *= mOptions.mDec;
-         
-         
-         
-     }
-     
-     
-    static void exploreOneSide( FT* x , COMPI::Functor<FT>* obj, FT& fn)
-    {       
-        fn = obj->func(x);       
-    }
+            return fcur;
+        }
+
+        void decMH() {
+            this->mH *= mOptions.mDec;
+        }
+
+        static void exploreOneSide(FT* x, COMPI::Functor<FT>* obj, FT& fn) {
+            fn = obj->func(x);
+        }
+
         std::string about() const {
             std::ostringstream os;
             os << "Basic coordinate based exporer modifed for two side\n";
@@ -227,12 +215,12 @@ namespace LOCSEARCH {
 
         const COMPI::MPProblem<FT>& mProb;
         Options mOptions;
-        
+
 
     };
 
 };
 
 
-#endif	/* HJEXPLORER_HPP */
+#endif /* HJEXPLORER_HPP */
 

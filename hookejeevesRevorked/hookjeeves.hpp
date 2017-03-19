@@ -9,6 +9,7 @@
 #define  HOOKEJEEVES_HPP
 
 #include <sstream>
+#include <functional>
 #include <solver.hpp>
 #include <common/lineseach.hpp>
 #include <common/dummyls.hpp>
@@ -26,7 +27,7 @@ namespace LOCSEARCH {
     /**
      * Modified Hooke-Jeeves Method
      */
-    template <typename FT> class MHookeJeeves :  public COMPI::Solver <FT>  {
+    template <typename FT> class MHookeJeeves : public COMPI::Solver <FT> {
     public:
 
         struct Options {
@@ -45,23 +46,13 @@ namespace LOCSEARCH {
             /**
              * Lower bound on lambda
              */
-            FT mLambdaLB = 0.01;
+            FT mLambdaLB = 0.1;
         };
 
-        /**
-         * Determines stopping conditions
-         */
-        class Stopper {
-        public:
-            /**
-             * Returns true when the search should stop
-             * @param xdiff difference between old and new x
-             * @param fdiff difference between old and new f value
-             * @param fval function value best at the moment
-             * @param n current (big) step number 
-             */
-            virtual bool stopnow(FT xdiff, FT fdiff, FT fval, int n) = 0;
-        };
+        
+        typedef std::function<bool(FT v, const FT* x)> Stopper;
+        
+        
 
         /**
          * The constructor
@@ -70,11 +61,12 @@ namespace LOCSEARCH {
          * @param explorer - reference to the explorer
          * @param ls - pointer to the line search
          */
-        MHookeJeeves(const COMPI::MPProblem<FT>& prob, Stopper& stopper, HJExplorer<FT>& explorer, LineSearch<FT>* ls = nullptr) :
+        MHookeJeeves(const COMPI::MPProblem<FT>& prob, HJExplorer<FT>& explorer, LineSearch<FT>* ls = nullptr) :
         mProblem(prob),
-        mStopper(stopper),
         mExplorer(explorer),
-        mLS(ls) {
+        mLS(ls),
+        mStopper(defaultStopper)
+        {
             unsigned int typ = COMPI::MPUtils::getProblemType(prob);
             SG_ASSERT(typ == COMPI::MPUtils::ProblemTypes::BOXCONSTR | COMPI::MPUtils::ProblemTypes::CONTINUOUS | COMPI::MPUtils::ProblemTypes::SINGLEOBJ);
         }
@@ -93,19 +85,18 @@ namespace LOCSEARCH {
             FT fcur = obj->func(x);
             int n = mProblem.mVarTypes.size();
             const snowgoose::Box<double>& box = *(mProblem.mBox);
-            int sn = 0;
+
             FT lam = mOptions.mLambda;
             FT dir[n];
             FT xold[n];
             FT y[n];
-            
+
             auto step = [&] (FT* x1, FT* x2, FT * x3) {
                 if (mLS == nullptr) {
                     for (int i = 0; i < n; i++) {
                         x3[i] = x2[i] + lam * (x2[i] - x1[i]);
                     }
                 } else {
-
                     FT vv;
                     snowgoose::VecUtils::vecSaxpy(n, x2, x1, -1., dir);
                     snowgoose::VecUtils::vecCopy(n, x2, x3);
@@ -117,62 +108,34 @@ namespace LOCSEARCH {
             snowgoose::VecUtils::vecCopy(n, x, y);
 
             for (;;) {
-                sn++;
-                FT fnew = mExplorer.explore(y);
-                if ( fnew < fcur ) {
-                    rv = true;
-
-                    FT fdiff = fcur - fnew;
+                if(mStopper(fcur, x))
+                    break;
+                FT fnew = mExplorer.explore(y, fcur);
+                if (fnew < fcur) {
                     fcur = fnew;
-                    snowgoose::VecUtils::vecCopy(n, x, xold);
-                    snowgoose::VecUtils::vecCopy(n, y, x);
-                    FT xdiff = snowgoose::VecUtils::vecDist(n, xold, x);
-                    step(xold, x, y);
-                    
-                    
-                    for(int dimentionAxis = 0; dimentionAxis<n; dimentionAxis++)
-                    {
-                         if (y[dimentionAxis] < box.mA[dimentionAxis]) {
-                                 y[dimentionAxis] = box.mA[dimentionAxis];
-                            } else 
-                         if(y[dimentionAxis]>box.mB[dimentionAxis])
-                         {
-                             y[dimentionAxis] = box.mB[dimentionAxis];
-                         }
-                    }
-                    
-                    FT fstep = obj->func(y);
-		    if(fstep > fcur){
-                            std::cout<<"1";
-			if (lam > mOptions.mLambdaLB) {
-                        lam *= mOptions.mDec;
-                                              
+                    rv = true;
+                    if (mOptions.mLambda > 0) {
+                        snowgoose::VecUtils::vecCopy(n, x, xold);
+                        snowgoose::VecUtils::vecCopy(n, y, x);
+                        step(xold, x, y);
+                        snowgoose::BoxUtils::project(y, box);
+                        FT fstep = obj->func(y);
+                        if (fstep > fcur) {
+                            if (lam >= mOptions.mLambdaLB) {
+                                lam *= mOptions.mDec;
+                            }
+                            snowgoose::VecUtils::vecCopy(n, x, y);
+                        } else {
+                            lam *= mOptions.mInc;
+                            fcur = fstep;
                         }
-                        snowgoose::VecUtils::vecCopy(n, x, y); 
-                        
-		    }
-		    else
-			{				
-				lam *= mOptions.mInc;  
-                                std::cout<<"2";
-			}  
-                    if (mStopper.stopnow(xdiff, fdiff, fcur, sn))
-                    {
-                        
-                        break;
                     }
-                    }
-                else
-                {                   
-                    //mExplorer.decMH();
-                    std::cout<<"dec";
-                    if (mStopper.stopnow(1.0f, 1.0f, fcur, sn))
-                        break;
+                } else {
+                    break;
                 }
-                    
-                } 
-                
-                    
+            }
+
+
             v = fcur;
             return rv;
         }
@@ -194,10 +157,21 @@ namespace LOCSEARCH {
             return mOptions;
         }
 
+        /**
+         * Setup stopper
+         * @param stopper 
+         */
+        void setStopper(Stopper&& stopper) {
+            mStopper = stopper;
+            
+        }
     private:
 
+        static bool defaultStopper(FT v, const FT* x) {
+            return false;
+        }
 
-        Stopper &mStopper;
+        Stopper mStopper;
         HJExplorer<FT> &mExplorer;
         const COMPI::MPProblem<FT>& mProblem;
         Options mOptions;
