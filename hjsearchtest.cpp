@@ -17,18 +17,22 @@
 #include <common/vec.hpp>
 #include <box/boxutils.hpp>
 #include "crystproblemfact.hpp"
+
 #include <funccnt.hpp>
 #include <methods/lins/dichotls/dichotls.hpp>
 #include <methods/lins/quadls/quadls.hpp>
 //#include <methods/gfsdesc/gfsdesc.hpp>
 #include <methods/coordesc/coordesc.hpp>
+#include <methods/varcoordesc/varcoordesc.hpp>
 //#include <methods/varcoordesc/varcoordesc.hpp>
 
 
 #include <hookejeevesRevorked/coorhjexplorer.hpp>
 #include <hookejeevesRevorked/rndhjexplorer.hpp>
 #include <hookejeevesRevorked/hookjeeves.hpp>
+#include <hookejeevesRevorked/HookeJevesLinear.hpp>
 #include <hookejeevesRevorked/hjexplorer.hpp>
+#include <hookejeevesRevorked/varcoorhjexplorer.hpp>
 #include <methods/lins/quadls/quadls.hpp>
 /*#include <methods/hookejeeves/coorhjexplorer.hpp>
 #include <methods/hookejeeves/rndhjexplorer.hpp>
@@ -39,8 +43,6 @@
 
 
 using namespace std;
-
-
 
 class RosenbrockFunction : public COMPI::Functor <double> {
 public:
@@ -67,6 +69,17 @@ public:
     COMPI::MPProblem<double>& mpp;
     int n = 0;
 
+    class CoorStopper {
+    public:
+
+        bool operator()(double xdiff, double fdiff, const std::vector<double>& gran, double fval, int n) {
+            mCnt++;
+            return false;
+        }
+
+        int mCnt = 0;
+    };
+
     class MyStopper : public LOCSEARCH::QuadLS<double>::Stopper {
     public:
 
@@ -86,39 +99,6 @@ public:
     HJTester(COMPI::MPProblem<double>& _mpp) : mpp(_mpp) {
 
         n = mpp.mBox->mDim;
-
-    }
-
-    void TestHJ(char** argv) {
-        int cnt = 0;
-
-        double *x = new double[n];
-        snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
-        double v;
-        LOCSEARCH::CoorHJExplorer<double> explr(mpp);
-        //explr.getOptions().mHInit = 0.01;
-        //explr.getOptions().mHLB = 1e-6;
-        //explr.getOptions().mResetEveryTime = false;
-
-        snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
-
-        v = mpp.mObjectives[0]->func(x);
-
-        LOCSEARCH::MHookeJeeves<double> hjdesc(mpp, explr);
-        hjdesc.getOptions().mLambda = 0;
-        hjdesc.getOptions().mInc = 1;
-        hjdesc.getOptions().mDec = 1;
-        hjdesc.setStopper([&](double v, const double* x) {return false;});
-
-        COMPI::FuncCnt<double> *obj = dynamic_cast<COMPI::FuncCnt<double>*> (mpp.mObjectives[0]);
-        obj->reset();
-        hjdesc.search(x, v);
-
-        std::cout << hjdesc.about() << "\n";
-        std::cout << "In " << obj->mCounters.mFuncCalls << " function calls found v = " << v << "\n";
-        std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x) << "\n";
-        //std::cout << "Number of objective calls is " << mpp.mObjectives[0]->mCounters.mFuncCalls << "\n";
-        SG_ASSERT(v <= 0.01);
 
     }
 
@@ -147,10 +127,115 @@ public:
         obj->reset();
         hjdesc.search(x, v);
         std::cout << hjdesc.about() << "\n";
-        std::cout << "In " <<  obj->mCounters.mFuncCalls << " function calls found v = " << v << "\n";
+        std::cout << "In " << obj->mCounters.mFuncCalls << " function calls found v = " << v << "\n";
         std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x) << "\n";
         SG_ASSERT(v <= 0.01);
 
+
+    }
+
+    void TestHJ(char** argv) {
+        int cnt = 0;
+
+        double *x = new double[n];
+        snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
+        double v;
+        LOCSEARCH::CoorHJExplorer<double> explr(mpp);
+        //explr.getOptions().mHInit = 0.01;
+        //explr.getOptions().mHLB = 1e-6;
+        //explr.getOptions().mResetEveryTime = false;
+
+        snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
+
+        v = mpp.mObjectives[0]->func(x);
+
+        LOCSEARCH::MHookeJeeves<double> hjdesc(mpp, explr);
+        hjdesc.getOptions().mLambda = 0;
+        hjdesc.getOptions().mInc = 1;
+        hjdesc.getOptions().mDec = 1;
+        hjdesc.setStopper([&](double v, const double* x) {
+            return false;
+        });
+
+        COMPI::FuncCnt<double> *obj = dynamic_cast<COMPI::FuncCnt<double>*> (mpp.mObjectives[0]);
+        obj->reset();
+        hjdesc.search(x, v);
+
+        std::cout << hjdesc.about() << "\n";
+        std::cout << "In " << obj->mCounters.mFuncCalls << " function calls found v = " << v << "\n";
+        std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x) << "\n";
+        //std::cout << "Number of objective calls is " << mpp.mObjectives[0]->mCounters.mFuncCalls << "\n";
+        SG_ASSERT(v <= 0.01);
+
+    }
+    
+    void TestHJLinear(char** argv) {
+        int cnt = 0;
+
+        double *x = new double[n];
+        snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
+        double v;
+        LOCSEARCH::CoorHJExplorer<double> explr(mpp);
+        //explr.getOptions().mHInit = 0.01;
+        //explr.getOptions().mHLB = 1e-6;
+        //explr.getOptions().mResetEveryTime = false;
+
+        snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
+
+        v = mpp.mObjectives[0]->func(x);
+
+        LOCSEARCH::MHookeJeevesLinear<double> hjdesc(mpp, explr);
+        hjdesc.getOptions().mLambda = 0.2;
+        hjdesc.getOptions().mInc = 1.1;
+        hjdesc.getOptions().mDec = 0.9;
+        hjdesc.setStopper([&](double v, const double* x) {
+            return false;
+        });
+
+        COMPI::FuncCnt<double> *obj = dynamic_cast<COMPI::FuncCnt<double>*> (mpp.mObjectives[0]);
+        obj->reset();
+        hjdesc.search(x, v);
+
+        std::cout << hjdesc.about() << "\n";
+        std::cout << "In " << obj->mCounters.mFuncCalls << " function calls found v = " << v << "\n";
+        std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x) << "\n";
+        //std::cout << "Number of objective calls is " << mpp.mObjectives[0]->mCounters.mFuncCalls << "\n";
+        SG_ASSERT(v <= 0.01);
+
+    }
+
+    void TestVarHJ(char** argv) {
+        int cnt = 0;
+
+        double *x = new double[n];
+        snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
+        double v;
+        LOCSEARCH::VarCoorHJExplorer<double> explr(mpp);
+        //explr.getOptions().mHInit = 0.01;
+        //explr.getOptions().mHLB = 1e-6;
+        //explr.getOptions().mResetEveryTime = false;
+
+        snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
+
+        v = mpp.mObjectives[0]->func(x);
+
+        LOCSEARCH::MHookeJeeves<double> hjdesc(mpp, explr);
+        hjdesc.getOptions().mLambda = 0;
+        hjdesc.getOptions().mInc = 1;
+        hjdesc.getOptions().mDec = 1;
+        hjdesc.setStopper([&](double v, const double* x) {
+            return false;
+        });
+
+        COMPI::FuncCnt<double> *obj = dynamic_cast<COMPI::FuncCnt<double>*> (mpp.mObjectives[0]);
+        obj->reset();
+        hjdesc.search(x, v);
+
+        std::cout << hjdesc.about() << "\n";
+        std::cout << "In " << obj->mCounters.mFuncCalls << " function calls found v = " << v << "\n";
+        std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x) << "\n";
+        //std::cout << "Number of objective calls is " << mpp.mObjectives[0]->mCounters.mFuncCalls << "\n";
+        SG_ASSERT(v <= 0.01);
 
     }
 
@@ -218,6 +303,30 @@ public:
         std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x, 10) << "\n";
     }
 
+    void TestVarCoorDesk() {
+        int cnt = 0;
+
+
+
+        CoorStopper stp;
+        LOCSEARCH::VarCoorDesc<double> desc(mpp, stp);
+
+        double *x = new double[n];
+        snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
+        double v;
+        v = mpp.mObjectives[0]->func(x);
+        std::cout << "Initial v = " << v << "\n";
+        std::cout << "Initial x = " << snowgoose::VecUtils::vecPrint(n, x, 10) << "\n";
+        COMPI::FuncCnt<double> *obj = dynamic_cast<COMPI::FuncCnt<double>*> (mpp.mObjectives[0]);
+        obj->reset();
+        bool rv = desc.search(x, v);
+        std::cout << desc.about() << "\n";
+        std::cout << "In " << cnt << " iterations and " << obj->mCounters.mFuncCalls << " function calls found v = " << v << "\n";
+        std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x, 10) << "\n";
+    }
+
+
+
 };
 
 COMPI::MPProblem<double>* getRosenbrock() {
@@ -261,9 +370,21 @@ int main(int argc, char** argv) {
 
     std::cout << "================================================================================CoorDesk Test" << endl;
     hjtester.TestCoorDesk();
+    
+    std::cout << "================================================================================VarCoorDesk Test" << endl;
+    hjtester.TestVarCoorDesk();
+
+    std::cout << "================================================================================VarCoorDesk HJ Test" << endl;
+    hjtester.TestVarHJ(argv);
 
     std::cout << "================================================================================HJ std" << endl;
     hjtester.TestHJ(argv);
+    
+    std::cout << "================================================================================HJ linear cofficient" << endl;
+    hjtester.TestHJLinear(argv);
+    
+     
+    
 #if 0    
     std::cout << "===============================================================HJ rnd" << endl;
     hjtester.TestRnd(argv);
