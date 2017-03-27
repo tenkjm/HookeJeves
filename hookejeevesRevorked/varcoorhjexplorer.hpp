@@ -186,7 +186,7 @@ namespace LOCSEARCH {
                     }
                 }
                
-                     std::cout<<"bad!"<<"\n";
+                     
                     FT H = snowgoose::VecUtils::maxAbs(n, sft.data(), nullptr);
                     if (H <= mOptions.mHLB)
                         break;

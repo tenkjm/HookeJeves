@@ -92,34 +92,39 @@ namespace LOCSEARCH {
             FT dir[n];
             FT xold[n];
             FT y[n];
-
+            
+            FT xtemp[n];
+            
             auto step = [&] (FT* x1, FT* x2, FT * x3) {
+                 
                 if (mLS == nullptr) {
+                    FT last_value = obj->func(x2);
 
-METKASTEP:
                     for (int i = 0; i < n; i++) {
                         x3[i] = x2[i] + lam * (x2[i] - x1[i]);
-
                     }
                     if (lam > 0) {
-                        if (obj->func(x2) < obj->func(x3)) {
-                            std::cout<<"dec";
-                            if (lam >= mOptions.mLambdaLB) {
-                                lam *= mOptions.mDec;
-                                
-                                goto METKASTEP;
-                            }
-
-                        }
-                        if (obj->func(x2) > obj->func(x3)) {
+                      std::cout<<"before loop\n";
+                       while (last_value > obj->func(x3)) {
                             {
+                                snowgoose::VecUtils::vecCopy(n, x3, xtemp);
                                 lam *= mOptions.mInc;
-                                std::cout<<"inc";
-                                if(snowgoose::BoxUtils::isIn(x3,box))
-                                 goto METKASTEP;
-
+                                std::cout<<"inc2\n";
+                                if(snowgoose::BoxUtils::isIn(x3,box)){
+                                    last_value = obj->func(x3); 
+                                    std::cout<<"ok!\n";
+                                }
+                                else
+                                {   
+                                    std::cout<<"break2\n";
+                                    break;
+                                }
+                                 for (int i = 0; i < n; i++) {
+                                            x3[i] = x2[i] + lam * (x2[i] - x1[i]);
+                                 }
                             }
-                        }
+                            snowgoose::VecUtils::vecCopy(n, xtemp, x3);
+                        }                                           
                     }
                     } else {
                         FT vv;
@@ -142,12 +147,7 @@ METKASTEP:
                         if (mOptions.mLambda > 0) {
                             snowgoose::VecUtils::vecCopy(n, x, xold);
                             snowgoose::VecUtils::vecCopy(n, y, x);
-
-
                             step(xold, x, y);
-
-
-
                             snowgoose::BoxUtils::project(y, box);
                             FT fstep = obj->func(y);
                             if (fstep > fcur) {
