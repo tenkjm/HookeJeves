@@ -1,8 +1,6 @@
-ROOT=./
-BINS = hjsearchtest.exe
-TESTS = 
+all dep clean indent tests::
+	cd gtest/lib && make $@ && cd .. \\
+	cd testlocalopt && make $@ && cd .. \\
+	cd testsearch && make $@ && cd .. \\
+	
 
-
-
-include all.inc
--include deps.inc
