@@ -285,9 +285,7 @@ public:
 
 
         //LOCSEARCH::CoorDesc<double> desc(mpp, stopper);
-        LOCSEARCH::CoorDesc<double> desc(mpp, [&](double xdiff, double fdiff, double gran, double fval, int n) {
-            return false;
-        });
+        LOCSEARCH::CoorDesc<double> desc(mpp);
 
         double *x = new double[n];
         snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
@@ -309,7 +307,7 @@ public:
 
 
         CoorStopper stp;
-        LOCSEARCH::VarCoorDesc<double> desc(mpp, stp);
+        LOCSEARCH::VarCoorDesc<double> desc(mpp);
 
         double *x = new double[n];
         snowgoose::BoxUtils::getCenter(*(mpp.mBox), x);
