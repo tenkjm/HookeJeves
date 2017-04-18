@@ -18,6 +18,9 @@ namespace LOCSEARCH {
     template <class FT> class HJExplorer {
     public:
             FT mH;
+            
+            
+            
         /**
          * Explore the vicinity of the 'x' point to find better value
          * @param x start vector on entry, resulting vector on exit 

@@ -18,7 +18,7 @@
 #include <common/sgerrcheck.hpp>
 #include <mpproblem.hpp>
 #include <mputils.hpp>
-
+#include <fstream>
 #include "hjexplorer.hpp"
 
 
@@ -49,10 +49,8 @@ namespace LOCSEARCH {
             FT mLambdaLB = 0.1;
         };
 
-        
-        typedef std::function<bool(FT v, const FT* x)> Stopper;
-        
-        
+
+        typedef std::function<bool(FT v, const FT* x) > Stopper;
 
         /**
          * The constructor
@@ -65,10 +63,26 @@ namespace LOCSEARCH {
         mProblem(prob),
         mExplorer(explorer),
         mLS(ls),
-        mStopper(defaultStopper)
-        {
+        mStopper(defaultStopper) {
             unsigned int typ = COMPI::MPUtils::getProblemType(prob);
             SG_ASSERT(typ == COMPI::MPUtils::ProblemTypes::BOXCONSTR | COMPI::MPUtils::ProblemTypes::CONTINUOUS | COMPI::MPUtils::ProblemTypes::SINGLEOBJ);
+        }
+
+        std::ofstream myfile;
+
+        void openFile(char* filename) {
+
+
+            myfile.open(filename);
+
+        }
+
+        void closeFile() {
+            myfile.close();
+        }
+
+        void appendToFile(const char* message) {
+            myfile << message << "\n";
         }
 
         /**
@@ -79,7 +93,7 @@ namespace LOCSEARCH {
          */
         bool search(FT* x, FT& v) {
             bool rv = false;
-
+            openFile("optimisation_process_std_Hooke_jeves.tx");
             COMPI::Functor<FT>* obj = mProblem.mObjectives.at(0);
             snowgoose::BoxUtils::project(x, *(mProblem.mBox));
             FT fcur = obj->func(x);
@@ -108,11 +122,12 @@ namespace LOCSEARCH {
             snowgoose::VecUtils::vecCopy(n, x, y);
 
             for (;;) {
-                if(mStopper(fcur, x))
+                if (mStopper(fcur, x))
                     break;
                 FT fnew = mExplorer.explore(y, fcur);
                 if (fnew < fcur) {
                     fcur = fnew;
+                    appendToFile(snowgoose::VecUtils::vecPrint(n, x).c_str());
                     rv = true;
                     if (mOptions.mLambda > 0) {
                         snowgoose::VecUtils::vecCopy(n, x, xold);
@@ -137,6 +152,7 @@ namespace LOCSEARCH {
 
 
             v = fcur;
+            closeFile();
             return rv;
         }
 
@@ -163,7 +179,7 @@ namespace LOCSEARCH {
          */
         void setStopper(Stopper&& stopper) {
             mStopper = stopper;
-            
+
         }
     private:
 

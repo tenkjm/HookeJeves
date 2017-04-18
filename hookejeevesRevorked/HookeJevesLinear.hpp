@@ -23,7 +23,7 @@
 #include <common/sgerrcheck.hpp>
 #include <mpproblem.hpp>
 #include <mputils.hpp>
-
+#include <fstream>
 #include "hjexplorer.hpp"
 
 
@@ -53,7 +53,22 @@ namespace LOCSEARCH {
              */
             FT mLambdaLB = 0.1;
         };
+        std::ofstream myfile;
 
+        void openFile(char* filename) {
+
+
+            myfile.open(filename);
+
+        }
+
+        void closeFile() {
+            myfile.close();
+        }
+
+        void appendToFile(const char* message) {
+            myfile << message << "\n";
+        }
 
         typedef std::function<bool(FT v, const FT* x) > Stopper;
 
@@ -81,7 +96,7 @@ namespace LOCSEARCH {
          */
         bool search(FT* x, FT& v) {
             bool rv = false;
-
+               openFile("optimisation_process_linear_Hooke_jeves.tx");
             COMPI::Functor<FT>* obj = mProblem.mObjectives.at(0);
             snowgoose::BoxUtils::project(x, *(mProblem.mBox));
             FT fcur = obj->func(x);
@@ -143,6 +158,7 @@ namespace LOCSEARCH {
                     FT fnew = mExplorer.explore(y, fcur);
                     if (fnew < fcur) {
                         fcur = fnew;
+                         appendToFile(snowgoose::VecUtils::vecPrint(n, x).c_str());
                         rv = true;
                         if (mOptions.mLambda > 0) {
                             snowgoose::VecUtils::vecCopy(n, x, xold);
@@ -165,7 +181,7 @@ namespace LOCSEARCH {
                     }
                 }
 
-
+                closeFile();
                 v = fcur;
                 return rv;
             }
