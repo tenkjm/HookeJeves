@@ -134,6 +134,7 @@ namespace LOCSEARCH {
         //}
 
         FT explore(FT* x, FT fcur) {
+std::cout<<"hi1";
             COMPI::Functor<FT>* obj = mProb.mObjectives.at(0);
             int n = mProb.mVarTypes.size();
             const snowgoose::Box<double>& box = *(mProb.mBox);
@@ -142,6 +143,7 @@ namespace LOCSEARCH {
             sft.assign(n, mOptions.mHInit);
             if (mOptions.mResetEveryTime)
                 reset();
+	std::cout<<"hi";
             for (;;) {
                 for (int i = 0; i < n; i++) {
                     FT h = sft[i];
@@ -181,13 +183,14 @@ namespace LOCSEARCH {
                         FT t = h * mOptions.mInc;
                        
                         sft[i] = t;
+			//sft[i]=SGMIN(mOptions.mHUB, sft[i]);
                         fcur = fn;
                         continue;
                     }
                 }
                
                      
-                    FT H = snowgoose::VecUtils::maxAbs(n, sft.data(), nullptr);
+                    FT H = snowgoose::VecUtils::minAbs(n, sft.data(), nullptr);
                     if (H <= mOptions.mHLB)
                         break;
                 
@@ -205,7 +208,7 @@ namespace LOCSEARCH {
 
         std::string about() const {
             std::ostringstream os;
-            os << "Basic coordinate based exporer modifed for two side\n";
+            os << "Variable coordinate based exporer modifed for two side\n";
             os << "Initial granularity: " << mOptions.mHInit << "\n";
             os << "Increment coefficient: " << mOptions.mInc << "\n";
             os << "Decrement coefficient: " << mOptions.mDec << "\n";

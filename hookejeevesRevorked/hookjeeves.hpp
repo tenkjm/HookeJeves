@@ -124,7 +124,9 @@ namespace LOCSEARCH {
             for (;;) {
                 if (mStopper(fcur, x))
                     break;
+		std::cout<<"explore\n";
                 FT fnew = mExplorer.explore(y, fcur);
+		std::cout<<"after explore\n";
                 if (fnew < fcur) {
                     fcur = fnew;
                     

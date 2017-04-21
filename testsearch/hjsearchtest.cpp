@@ -232,6 +232,7 @@ public:
 	hjdesc.filename = "TestHJVar.csv";
         COMPI::FuncCnt<double> *obj = dynamic_cast<COMPI::FuncCnt<double>*> (mpp.mObjectives[0]);
         obj->reset();
+        std::cout<<"search\n";
         hjdesc.search(x, v);
 
         std::cout << hjdesc.about() << "\n";
@@ -376,26 +377,26 @@ int main(int argc, char** argv) {
 
     HJTester hjtester(*mpp);
 
-  //  std::cout << "================================================================================CoorDesk Test" << endl;
-  //  hjtester.TestCoorDesk();
+//    std::cout << "================================================================================CoorDesk Test" << endl;
+//    hjtester.TestCoorDesk();
     
-    //std::cout << "================================================================================VarCoorDesk Test" << endl;
-   // hjtester.TestVarCoorDesk();
+//    std::cout << "================================================================================VarCoorDesk Test" << endl;
+//    hjtester.TestVarCoorDesk();
 
-   // std::cout << "================================================================================VarCoorDesk HJ Test" << endl;
-   // hjtester.TestVarHJ(argv, lambda, inc, dec);
+    std::cout << "================================================================================VarCoorDesk HJ Test" << endl;
+    hjtester.TestVarHJ(argv, lambda, inc, dec);
 
     std::cout << "================================================================================HJ std" << endl;
-    hjtester.TestHJ(argv, lambda, inc, dec);
+   hjtester.TestHJ(argv, lambda, inc, dec);
     
-  //  std::cout << "================================================================================HJ linear cofficient" << endl;
-   // hjtester.TestHJLinear(argv, lambda, inc, dec);
+//    std::cout << "================================================================================HJ linear cofficient" << endl;
+//    hjtester.TestHJLinear(argv, lambda, inc, dec);
     
      
     
 //#if 0    
-    std::cout << "===============================================================HJ rnd" << endl;
-    hjtester.TestRnd(argv , lambda, inc, dec);
+//    std::cout << "===============================================================HJ rnd" << endl;
+//    hjtester.TestRnd(argv , lambda, inc, dec);
 //#endif
 
    // std::cout << "===============================================================HJ linear" << endl;
