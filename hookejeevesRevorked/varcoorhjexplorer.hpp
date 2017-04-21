@@ -134,7 +134,7 @@ namespace LOCSEARCH {
         //}
 
         FT explore(FT* x, FT fcur) {
-std::cout<<"hi1";
+	    std::cout<<"std expl var\n";
             COMPI::Functor<FT>* obj = mProb.mObjectives.at(0);
             int n = mProb.mVarTypes.size();
             const snowgoose::Box<double>& box = *(mProb.mBox);
@@ -143,8 +143,9 @@ std::cout<<"hi1";
             sft.assign(n, mOptions.mHInit);
             if (mOptions.mResetEveryTime)
                 reset();
-	std::cout<<"hi";
+	    int t =0;
             for (;;) {
+t++;
                 for (int i = 0; i < n; i++) {
                     FT h = sft[i];
                     FT dh = h *  mOptions.mShifts[i];
@@ -188,9 +189,12 @@ std::cout<<"hi1";
                         continue;
                     }
                 }
-               
-                     
-                    FT H = snowgoose::VecUtils::minAbs(n, sft.data(), nullptr);
+               std::cout<<t<<"\n";
+                     if (fcur < fold) {
+                    
+                    break;
+                }
+                    FT H = snowgoose::VecUtils::maxAbs(n, sft.data(), nullptr);
                     if (H <= mOptions.mHLB)
                         break;
                 
