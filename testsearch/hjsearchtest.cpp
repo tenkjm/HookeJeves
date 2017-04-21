@@ -20,7 +20,7 @@
 
 #include <funccnt.hpp>
 #include <methods/lins/dichotls/dichotls.hpp>
-#include <methods/lins/quadls/quadls.hpp>
+//#include <methods/lins/quadls/quadls.hpp>
 //#include <methods/gfsdesc/gfsdesc.hpp>
 #include <methods/coordesc/coordesc.hpp>
 #include <methods/varcoordesc/varcoordesc.hpp>
@@ -38,6 +38,7 @@
 #include <methods/hookejeeves/rndhjexplorer.hpp>
 #include <methods/hookejeeves/hookjeeves.hpp>
  */
+#include <stdlib.h>
 
 
 
@@ -102,7 +103,7 @@ public:
 
     }
 
-    void TestLS(char** argv) {
+  /*  void TestLS(char** argv) {
 
 
         int cnt = 0;
@@ -133,8 +134,8 @@ public:
 
 
     }
-
-    void TestHJ(char** argv) {
+*/
+    void TestHJ(char** argv, double lambda, double inc, double dec) {
         int cnt = 0;
 
         double *x = new double[n];
@@ -150,9 +151,10 @@ public:
         v = mpp.mObjectives[0]->func(x);
 
         LOCSEARCH::MHookeJeeves<double> hjdesc(mpp, explr);
-        hjdesc.getOptions().mLambda = 0;
-        hjdesc.getOptions().mInc = 1;
-        hjdesc.getOptions().mDec = 1;
+        hjdesc.getOptions().mLambda = lambda;
+        hjdesc.getOptions().mInc = inc;
+        hjdesc.getOptions().mDec = dec;
+	hjdesc.filename = "TestHJstandart.csv";
         hjdesc.setStopper([&](double v, const double* x) {
             return false;
         });
@@ -169,7 +171,7 @@ public:
 
     }
     
-    void TestHJLinear(char** argv) {
+    void TestHJLinear(char** argv, double lambda, double inc, double dec) {
         int cnt = 0;
 
         double *x = new double[n];
@@ -185,9 +187,10 @@ public:
         v = mpp.mObjectives[0]->func(x);
 
         LOCSEARCH::MHookeJeevesLinear<double> hjdesc(mpp, explr);
-        hjdesc.getOptions().mLambda = 0.2;
-        hjdesc.getOptions().mInc = 1.1;
-        hjdesc.getOptions().mDec = 0.9;
+        hjdesc.getOptions().mLambda = lambda;
+        hjdesc.getOptions().mInc = inc;
+        hjdesc.getOptions().mDec = dec;
+	hjdesc.filename = "TestHJlinear.csv";
         hjdesc.setStopper([&](double v, const double* x) {
             return false;
         });
@@ -204,7 +207,7 @@ public:
 
     }
 
-    void TestVarHJ(char** argv) {
+    void TestVarHJ(char** argv, double lambda, double inc, double dec) {
         int cnt = 0;
 
         double *x = new double[n];
@@ -220,13 +223,13 @@ public:
         v = mpp.mObjectives[0]->func(x);
 
         LOCSEARCH::MHookeJeeves<double> hjdesc(mpp, explr);
-        hjdesc.getOptions().mLambda = 0;
-        hjdesc.getOptions().mInc = 1;
-        hjdesc.getOptions().mDec = 1;
+        hjdesc.getOptions().mLambda = lambda;
+        hjdesc.getOptions().mInc = inc;
+        hjdesc.getOptions().mDec = dec;
         hjdesc.setStopper([&](double v, const double* x) {
             return false;
         });
-
+	hjdesc.filename = "TestHJVar.csv";
         COMPI::FuncCnt<double> *obj = dynamic_cast<COMPI::FuncCnt<double>*> (mpp.mObjectives[0]);
         obj->reset();
         hjdesc.search(x, v);
@@ -239,7 +242,7 @@ public:
 
     }
 
-    void TestRnd(char** argv) {
+    void TestRnd(char** argv, double lambda, double inc, double dec) {
 
         int cnt = 0;
 
@@ -257,9 +260,10 @@ public:
         v = mpp.mObjectives[0]->func(x);
 
         LOCSEARCH::MHookeJeeves<double> hjdesc(mpp, explr);
-        hjdesc.getOptions().mLambda = 0.01;
-
-
+        hjdesc.getOptions().mLambda = lambda;
+        hjdesc.getOptions().mInc = inc;
+        hjdesc.getOptions().mDec = dec;
+        hjdesc.filename = "TestHJRnd.csv";
         hjdesc.search(x, v);
 
         std::cout << hjdesc.about() << "\n";
@@ -355,41 +359,47 @@ COMPI::MPProblem<double>* getRosenbrock() {
 int main(int argc, char** argv) {
 
     COMPI::MPProblem<double>* mpp;
-
+    double lambda = 1, inc = 1, dec = 1;
     if (argc == 1) {
         mpp = getRosenbrock();
     } else {
         CrystallProblemFactory cpf12(argv[1]);
         mpp = cpf12.get();
+
+	lambda = std::stod(argv[2]);
+	inc = std::stod(argv[3]);
+	dec = std::stod(argv[4]);
+
+        std::cout<<"lambda = "<< lambda << "\n";
     }
     mpp->mObjectives[0] = new COMPI::FuncCnt<double>(*(mpp->mObjectives.at(0)));
 
     HJTester hjtester(*mpp);
 
-    std::cout << "================================================================================CoorDesk Test" << endl;
-    hjtester.TestCoorDesk();
+  //  std::cout << "================================================================================CoorDesk Test" << endl;
+  //  hjtester.TestCoorDesk();
     
-    std::cout << "================================================================================VarCoorDesk Test" << endl;
-    hjtester.TestVarCoorDesk();
+    //std::cout << "================================================================================VarCoorDesk Test" << endl;
+   // hjtester.TestVarCoorDesk();
 
-    std::cout << "================================================================================VarCoorDesk HJ Test" << endl;
-    hjtester.TestVarHJ(argv);
+   // std::cout << "================================================================================VarCoorDesk HJ Test" << endl;
+   // hjtester.TestVarHJ(argv, lambda, inc, dec);
 
     std::cout << "================================================================================HJ std" << endl;
-    hjtester.TestHJ(argv);
+    hjtester.TestHJ(argv, lambda, inc, dec);
     
-    std::cout << "================================================================================HJ linear cofficient" << endl;
-    hjtester.TestHJLinear(argv);
+  //  std::cout << "================================================================================HJ linear cofficient" << endl;
+   // hjtester.TestHJLinear(argv, lambda, inc, dec);
     
      
     
-#if 0    
+//#if 0    
     std::cout << "===============================================================HJ rnd" << endl;
-    hjtester.TestRnd(argv);
-#endif
+    hjtester.TestRnd(argv , lambda, inc, dec);
+//#endif
 
-    std::cout << "===============================================================HJ linear" << endl;
-    hjtester.TestLS(argv);
+   // std::cout << "===============================================================HJ linear" << endl;
+   // hjtester.TestLS(argv);
 
 
     return 0;

@@ -54,11 +54,11 @@ namespace LOCSEARCH {
             FT mLambdaLB = 0.1;
         };
         std::ofstream myfile;
-
+        char * filename;
         void openFile(char* filename) {
 
 
-            myfile.open(filename);
+            myfile.open(this->filename);
 
         }
 
@@ -158,11 +158,12 @@ namespace LOCSEARCH {
                     FT fnew = mExplorer.explore(y, fcur);
                     if (fnew < fcur) {
                         fcur = fnew;
-                         appendToFile(snowgoose::VecUtils::vecPrint(n, x).c_str());
+                        
                         rv = true;
                         if (mOptions.mLambda > 0) {
                             snowgoose::VecUtils::vecCopy(n, x, xold);
                             snowgoose::VecUtils::vecCopy(n, y, x);
+			    appendToFile(snowgoose::VecUtils::vecPrint(n, x).c_str());
                             step(xold, x, y);
                             snowgoose::BoxUtils::project(y, box);
                             FT fstep = obj->func(y);
@@ -171,6 +172,7 @@ namespace LOCSEARCH {
                                     lam *= mOptions.mDec;
                                 }
                                 snowgoose::VecUtils::vecCopy(n, x, y);
+ 				
                             } else {
                                 lam *= mOptions.mInc;
                                 fcur = fstep;
