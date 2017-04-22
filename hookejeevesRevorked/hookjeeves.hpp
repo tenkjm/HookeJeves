@@ -124,12 +124,12 @@ namespace LOCSEARCH {
             for (;;) {
                 if (mStopper(fcur, x))
                     break;
-		std::cout<<"explore\n";
+		//std::cout<<"explore\n";
                 FT fnew = mExplorer.explore(y, fcur);
-		std::cout<<"after explore\n";
+		//std::cout<<"after explore\n";
                 if (fnew < fcur) {
                     fcur = fnew;
-                    std::cout<<"lower\n";
+                  //  std::cout<<"lower\n";
                     appendToFile(snowgoose::VecUtils::vecPrint(n, y).c_str());
                     rv = true;
                     if (mOptions.mLambda > 0) {
@@ -148,7 +148,7 @@ namespace LOCSEARCH {
 		//	   std::ostringstream os;
 		//		    os <<"x changed<</n";
                         } else {
-                            std::cout<<"inc<<\n";
+                    //        std::cout<<"inc<<\n";
                             lam *= mOptions.mInc;
                             fcur = fstep;
                         }

@@ -48,7 +48,7 @@ namespace LOCSEARCH {
             /**
              * Lower bound for granularity
              */
-            FT mHLB = 1e-08;
+            FT mHLB = 1e-04;
             /**
              * Upper bound on granularity
              */
@@ -134,7 +134,7 @@ namespace LOCSEARCH {
         //}
 
         FT explore(FT* x, FT fcur) {
-	    std::cout<<"std expl var\n";
+	    //std::cout<<"std expl var\n";
             COMPI::Functor<FT>* obj = mProb.mObjectives.at(0);
             int n = mProb.mVarTypes.size();
             const snowgoose::Box<double>& box = *(mProb.mBox);
@@ -184,19 +184,22 @@ t++;
                         FT t = h * mOptions.mInc;
                        
                         sft[i] = t;
-			//sft[i]=SGMIN(mOptions.mHUB, sft[i]);
+			sft[i]=SGMIN(mOptions.mHUB, sft[i]);
                         fcur = fn;
                         continue;
                     }
                 }
-               std::cout<<t<<"\n";
+              // std::cout<<t<<"\n";
                      if (fcur < fold) {
-                    
+                       //  std::cout<<"break 1\n";
                     break;
                 }
                     FT H = snowgoose::VecUtils::maxAbs(n, sft.data(), nullptr);
                     if (H <= mOptions.mHLB)
+                    {
+                       // std::cout<<"break 2\n";
                         break;
+                    }
                 
             }
             return fcur;

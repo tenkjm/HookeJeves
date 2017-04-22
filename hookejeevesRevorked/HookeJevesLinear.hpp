@@ -119,24 +119,25 @@ namespace LOCSEARCH {
                         x3[i] = x2[i] + lam * (x2[i] - x1[i]);
                     }
                     if (lam > 0) {
-                      std::cout<<"before loop\n";
+                    //  std::cout<<"before loop\n";
                        while (last_value > obj->func(x3)) {
                             {
                                 snowgoose::VecUtils::vecCopy(n, x3, xtemp);
                                 lam *= mOptions.mInc;
-                                std::cout<<"inc2\n";
+                               // std::cout<<"inc2\n";
                                 if(snowgoose::BoxUtils::isIn(x3,box)){
                                     last_value = obj->func(x3); 
-                                    std::cout<<"ok!\n";
+                            //        std::cout<<"ok!\n";
                                 }
                                 else
                                 {   
-                                    std::cout<<"break2\n";
+                              ///      std::cout<<"break2\n";
                                     break;
                                 }
                                  for (int i = 0; i < n; i++) {
                                             x3[i] = x2[i] + lam * (x2[i] - x1[i]);
                                  }
+                                snowgoose::BoxUtils::project(x3, box);
                             }
                             snowgoose::VecUtils::vecCopy(n, xtemp, x3);
                         }                                           
@@ -156,6 +157,7 @@ namespace LOCSEARCH {
                     if (mStopper(fcur, x))
                         break;
                     FT fnew = mExplorer.explore(y, fcur);
+                     //std::cout<<"after explore\n";
                     if (fnew < fcur) {
                         fcur = fnew;
                         
@@ -163,6 +165,7 @@ namespace LOCSEARCH {
                         if (mOptions.mLambda > 0) {
                             snowgoose::VecUtils::vecCopy(n, x, xold);
                             snowgoose::VecUtils::vecCopy(n, y, x);
+                           // std::cout<<"in loop\n";
 			    appendToFile(snowgoose::VecUtils::vecPrint(n, x).c_str());
                             step(xold, x, y);
                             snowgoose::BoxUtils::project(y, box);

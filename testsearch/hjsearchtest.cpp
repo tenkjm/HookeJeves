@@ -22,8 +22,8 @@
 #include <methods/lins/dichotls/dichotls.hpp>
 //#include <methods/lins/quadls/quadls.hpp>
 //#include <methods/gfsdesc/gfsdesc.hpp>
-#include <methods/coordesc/coordesc.hpp>
-#include <methods/varcoordesc/varcoordesc.hpp>
+//#include <methods/coordesc/coordesc.hpp>
+//#include <methods/varcoordesc/varcoordesc.hpp>
 //#include <methods/varcoordesc/varcoordesc.hpp>
 
 
@@ -265,10 +265,12 @@ public:
         hjdesc.getOptions().mInc = inc;
         hjdesc.getOptions().mDec = dec;
         hjdesc.filename = "TestHJRnd.csv";
+        COMPI::FuncCnt<double> *obj = dynamic_cast<COMPI::FuncCnt<double>*> (mpp.mObjectives[0]);
+        obj->reset();
         hjdesc.search(x, v);
 
         std::cout << hjdesc.about() << "\n";
-        std::cout << "In " << " iterations found v = " << v << "\n";
+        std::cout << "In "<< obj->mCounters.mFuncCalls  << " iterations found v = " << v << "\n";
         std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x) << "\n";
         //std::cout << "Number of objective calls is " << mpp.mObjectives[0]->mCounters.mFuncCalls << "\n";
         SG_ASSERT(v <= 0.01);
@@ -277,7 +279,7 @@ public:
 
     }
 
-    void TestCoorDesk() {
+  /*  void TestCoorDesk() {
         int cnt = 0;
         auto stopper = [&](double xdiff, double fdiff, double gran, double fval, int n) {
             cnt++;
@@ -328,7 +330,7 @@ public:
         std::cout << " at " << snowgoose::VecUtils::vecPrint(n, x, 10) << "\n";
     }
 
-
+*/
 
 };
 

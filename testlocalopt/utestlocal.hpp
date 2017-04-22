@@ -25,8 +25,8 @@
 #include <methods/lins/dichotls/dichotls.hpp>
 #include <methods/lins/quadls/quadls.hpp>
 //#include <methods/gfsdesc/gfsdesc.hpp>
-#include <methods/coordesc/coordesc.hpp>
-#include <methods/varcoordesc/varcoordesc.hpp>
+//#include <methods/coordesc/coordesc.hpp>
+//#include <methods/varcoordesc/varcoordesc.hpp>
 //#include <methods/varcoordesc/varcoordesc.hpp>
 
 
@@ -89,8 +89,8 @@ protected:
         testgloboptCoorHJExplorer(key, expr, exprInterval, customDim);
         testgloboptTestVarHJ(key, expr, exprInterval, customDim);
         testgloboptTestHJLinear(key, expr, exprInterval, customDim);
-        testgloboptTestCoorDesk(key, expr, exprInterval, customDim);
-        testgloboptTestVarCoorDesk(key, expr, exprInterval, customDim);
+        ///testgloboptTestCoorDesk(key, expr, exprInterval, customDim);
+       /// testgloboptTestVarCoorDesk(key, expr, exprInterval, customDim);
     }
     
     void testgloboptCoorHJExplorer(const std::string& key, const Expr<double>& expr, const Expr<Interval<double>> &exprInterval, int customDim = 0, double epsilon = EPSILON) {
@@ -251,7 +251,7 @@ protected:
         ASSERT_NEAR(expected, v, epsilon);
     }
 
-
+/*
     void testgloboptTestCoorDesk(const std::string& key, const Expr<double>& expr, const Expr<Interval<double>> &exprInterval, int customDim = 0, double epsilon = EPSILON) {
 
         
@@ -365,7 +365,7 @@ protected:
 
         ASSERT_NEAR(expected, v, epsilon);
     }
-    
+    */
     DescFuncReader dfr;
 };
 
