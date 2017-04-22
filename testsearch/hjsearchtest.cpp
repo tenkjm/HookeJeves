@@ -366,9 +366,14 @@ int main(int argc, char** argv) {
     if (argc == 1) {
         mpp = getRosenbrock();
     } else {
+        if(argv[1][0] =='r'){
+
+		mpp = getRosenbrock();
+
+	}else{
         CrystallProblemFactory cpf12(argv[1]);
         mpp = cpf12.get();
-
+	}
 	lambda = std::stod(argv[2]);
 	inc = std::stod(argv[3]);
 	dec = std::stod(argv[4]);
