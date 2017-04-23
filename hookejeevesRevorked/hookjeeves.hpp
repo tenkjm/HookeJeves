@@ -126,11 +126,12 @@ namespace LOCSEARCH {
                     break;
 		//std::cout<<"explore\n";
                 FT fnew = mExplorer.explore(y, fcur);
+                std::cout<<"lower\n";
+                appendToFile(snowgoose::VecUtils::vecPrint(n, y).c_str());
 		//std::cout<<"after explore\n";
                 if (fnew < fcur) {
                     fcur = fnew;
-                  //  std::cout<<"lower\n";
-                    appendToFile(snowgoose::VecUtils::vecPrint(n, y).c_str());
+                    
                     rv = true;
                     if (mOptions.mLambda > 0) {
                         snowgoose::VecUtils::vecCopy(n, x, xold);
