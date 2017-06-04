@@ -362,7 +362,7 @@ COMPI::MPProblem<double>* getRosenbrock() {
 int main(int argc, char** argv) {
 
     COMPI::MPProblem<double>* mpp;
-    double lambda = 1, inc = 1, dec = 1;
+    double lambda = 0.1, inc = 1.1, dec = 0.9;
     if (argc == 1) {
         mpp = getRosenbrock();
     } else {

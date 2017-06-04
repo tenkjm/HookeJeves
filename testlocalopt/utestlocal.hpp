@@ -87,7 +87,7 @@ protected:
     void testglobopt(const std::string& key, const Expr<double>& expr, const Expr<Interval<double>> &exprInterval, int customDim = 0, double epsilon = EPSILON) {
 
         
-        double lambda = 0.6;
+        double lambda = 0.001;
         double inc = 1.1;
         double dec = 0.9;
         testgloboptCoorHJExplorer(key, expr, exprInterval, customDim, lambda, inc, dec);
@@ -447,13 +447,14 @@ TEST_F(GlobOptTest, TestGlobOptAckley3)
 	testglobopt(K.Ackley3, expr, exprInterval);
 }
 
-
-//TEST_F(GlobOptTest, TestGlobOptAdjiman)
-//{
-//    auto expr = Adjiman<double>();
-//    auto exprInterval = Adjiman<Interval<double>>();
-//	testglobopt(K.Adjiman, expr, exprInterval);
-//}
+/*
+TEST_F(GlobOptTest, TestGlobOptAdjiman)
+{
+    auto expr = Adjiman<double>();
+    auto exprInterval = Adjiman<Interval<double>>();
+	testglobopt(K.Adjiman, expr, exprInterval);
+}
+*/
 //
 //TEST_F(GlobOptTest, TestGlobOptAlpine1)
 //{  
